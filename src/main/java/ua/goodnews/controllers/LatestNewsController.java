@@ -6,11 +6,10 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import ua.goodnews.services.bayes.BayesClassifier;
-import ua.goodnews.model.Category;
-import ua.goodnews.model.Filter;
 import ua.goodnews.dto.NewsEntry;
-import ua.goodnews.services.rss.impl.FeedReaderImpl;
+import ua.goodnews.model.Category;
+import ua.goodnews.services.bayes.BayesClassifier;
+import ua.goodnews.services.rss.FeedReader;
 import ua.goodnews.services.terms.TermAccumulator;
 
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.List;
  */
 
 @Controller
-@CrossOrigin(origins = "http://localhost:8000")
 public class LatestNewsController {
 
     @Autowired
@@ -33,12 +31,12 @@ public class LatestNewsController {
     private BayesClassifier bayesClassifier;
 
     @Autowired
-    private FeedReaderImpl feedReaderImpl;
+    private FeedReader feedReader;
 
     @RequestMapping(value="/rss", method = RequestMethod.GET)
     public @ResponseBody
     List<NewsEntry> getFeed(@RequestParam(value="url", required=true) String url) {
-        List<SyndEntry> entries = feedReaderImpl.read(url);
+        List<SyndEntry> entries = feedReader.read(url);
 
         List<NewsEntry> newsEntries = (List<NewsEntry>)conversionService.convert(entries,
                 TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(SyndEntry.class)),
