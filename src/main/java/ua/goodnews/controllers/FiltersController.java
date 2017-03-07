@@ -2,10 +2,11 @@ package ua.goodnews.controllers;
 
 import javassist.tools.web.BadHttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import ua.goodnews.model.Filter;
 import ua.goodnews.repositories.FilterRepository;
 
@@ -26,7 +27,7 @@ public class FiltersController {
     public @ResponseBody
     List<Filter> getFilters() {
         List<Filter> result = new ArrayList<>();
-        filterRepository.findAll().forEach(filter -> result.add(filter));
+        filterRepository.findAll().forEach(result::add);
         return result;
     }
 
@@ -36,7 +37,6 @@ public class FiltersController {
             throw new BadHttpRequest();
         }
 
-        filterRepository.save(filter);
-        return filter;
+        return filterRepository.save(filter);
     }
 }

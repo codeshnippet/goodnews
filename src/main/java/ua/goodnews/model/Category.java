@@ -1,7 +1,8 @@
 package ua.goodnews.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.Comparator;
 
 /**
  * Created by acidum on 2/9/17.
@@ -17,6 +18,7 @@ public class Category implements Comparable<Category>{
     private String name;
 
     @ManyToOne
+    @JsonIgnore
     private Filter filter;
 
     public Category() {
