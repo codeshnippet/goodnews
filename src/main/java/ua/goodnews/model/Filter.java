@@ -19,6 +19,9 @@ public class Filter {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "filter")
     private List<Category> categories;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filter")
+    private List<Feed> feeds;
+
     public Filter(){}
 
     public Filter(String name) {
@@ -47,5 +50,13 @@ public class Filter {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public List<Feed> getFeeds() {
+        return feeds;
+    }
+
+    public void setFeeds(List<Feed> feeds) {
+        this.feeds = feeds;
     }
 }

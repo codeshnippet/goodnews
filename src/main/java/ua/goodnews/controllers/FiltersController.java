@@ -33,10 +33,6 @@ public class FiltersController {
 
     @RequestMapping(value="/filters", method = RequestMethod.POST)
     public @ResponseBody Filter create(@RequestBody Filter filter) throws BadHttpRequest {
-        if(filter.getId() != null){
-            throw new BadHttpRequest();
-        }
-
         return filterRepository.save(filter);
     }
 }

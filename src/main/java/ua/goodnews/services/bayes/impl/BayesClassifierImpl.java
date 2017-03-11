@@ -2,6 +2,7 @@ package ua.goodnews.services.bayes.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Term;
 import ua.goodnews.processors.TextPipelineManager;
@@ -29,8 +30,8 @@ public class BayesClassifierImpl implements BayesClassifier {
     private TextPipelineManager textPipelineManager;
 
     @Override
-    public Category classify(String text, Collection<Category> categories) {
-        text = textPipelineManager.process(text);
+    public void classify(FeedEntry entry, Collection<Category> categories) {
+        String text = textPipelineManager.process(entry.description);
 
         long vocabularySize  = termRepository.count();
 
@@ -44,7 +45,8 @@ public class BayesClassifierImpl implements BayesClassifier {
                 maxCategory = category;
             }
         }
-        return maxCategory;
+
+        entry.category = maxCategory;
     }
 
     private double calculateProbability(String text, Category category, double categoryProb, long vocabularySize) {

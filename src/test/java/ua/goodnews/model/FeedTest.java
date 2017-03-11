@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import ua.goodnews.repositories.RssFeedRepository;
+import ua.goodnews.repositories.FeedRepository;
 
 import static org.junit.Assert.*;
 
@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class FeedTest {
 
     @Autowired
-    private RssFeedRepository repo;
+    private FeedRepository repo;
 
     @Test
     public void testNewRssFeed(){

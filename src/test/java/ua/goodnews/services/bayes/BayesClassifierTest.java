@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Filter;
 import ua.goodnews.repositories.CategoryRepository;
@@ -95,16 +96,20 @@ public class BayesClassifierTest {
         //Test on good test texts
 
         for (String text: goodTestTexts){
-            Category result = bayesClassifier.classify(text, petFilter.getCategories());
-            if("dog".equals(result.getName())) {
+            FeedEntry entry = new FeedEntry();
+            entry.description = text;
+            bayesClassifier.classify(entry, petFilter.getCategories());
+            if("dog".equals(entry.category.getName())) {
                 goodCount += 1;
             }
         }
 
         //Test on bad test texts
         for (String text: badTestTexts){
-            Category result = bayesClassifier.classify(text, petFilter.getCategories());
-            if("cat".equals(result.getName())) {
+            FeedEntry entry = new FeedEntry();
+            entry.description = text;
+            bayesClassifier.classify(entry, petFilter.getCategories());
+            if("cat".equals(entry.category.getName())) {
                 goodCount += 1;
             }
         }
@@ -130,10 +135,10 @@ public class BayesClassifierTest {
         petFilter = new Filter("dog-filter");
         filterRepository.save(petFilter);
 
-        dogCategory = new Category("dog", petFilter);
+        dogCategory = new Category("dog");
         categoryRepository.save(dogCategory);
 
-        catCategory = new Category("cat", petFilter);
+        catCategory = new Category("cat");
         categoryRepository.save(catCategory);
 
         petFilter.setCategories(Arrays.asList(catCategory, dogCategory));

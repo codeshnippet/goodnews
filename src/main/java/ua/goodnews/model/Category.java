@@ -24,9 +24,8 @@ public class Category implements Comparable<Category>{
     public Category() {
     }
 
-    public Category(String name, Filter filter) {
+    public Category(String name) {
         this.name = name;
-        this.filter = filter;
     }
 
     public Long getId() {

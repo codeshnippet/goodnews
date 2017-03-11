@@ -9,6 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import ua.goodnews.model.Category;
+import ua.goodnews.model.Feed;
 import ua.goodnews.model.Filter;
 import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.utils.JsonTestUtil;
@@ -48,7 +50,12 @@ public class FiltersControllerTest extends TestCase {
 
     @Test
     public void testCreate() throws Exception {
+        Feed feed = new Feed();
+        feed.setUrl("http://feed.com");
+
         Filter newFilter = new Filter("new-test-filter");
+        newFilter.setFeeds(Arrays.asList(feed));
+        newFilter.setCategories(Arrays.asList(new Category("good"), new Category("bad")));
         given(this.filterRepository.save(any(Filter.class))).willAnswer(invocation -> {
             newFilter.setId(1l);
             return newFilter;
@@ -58,7 +65,13 @@ public class FiltersControllerTest extends TestCase {
                 .content(JsonTestUtil.convertObjectToJsonBytes(newFilter))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(content().json("{\"id\":1, \"name\":\"new-test-filter\"}"));
+                .andExpect(status().isOk()).andExpect(content().json(
+                "{\"id\":1," +
+                        "\"name\":\"new-test-filter\"," +
+                        "\"feeds\":[{\"url\":\"http://feed.com\"}]," +
+                        "\"categories\":[{\"name\":\"good\"},{\"name\":\"bad\"}]," +
+                        "}"
+        ));
     }
 
 }
