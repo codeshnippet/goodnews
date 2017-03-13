@@ -1,14 +1,13 @@
 package ua.goodnews.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Feed;
+import ua.goodnews.repositories.CategoryRepository;
 import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.services.bayes.BayesClassifier;
 import ua.goodnews.services.rss.FeedReader;
@@ -33,6 +32,9 @@ public class FeedsController {
     @Autowired
     private FilterRepository filterRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @RequestMapping(value="/filters/{filterId}/feeds/{feedId}", method = RequestMethod.GET)
     public @ResponseBody
     Feed getFeed(@PathVariable(value="filterId", required = true) Long filterId,
@@ -54,8 +56,10 @@ public class FeedsController {
         return resultFeed;
     }
 
-    @RequestMapping(value = "/mark", method = RequestMethod.POST)
-    public void teach(String text, Category category){
+    @RequestMapping(value = "/category/{categoryId}/mark", method = RequestMethod.POST)
+    @ResponseStatus(value = HttpStatus.OK)
+    public void teach(@RequestBody String text, @PathVariable(value="categoryId", required = true)Long categoryId){
+        Category category = categoryRepository.findOne(categoryId);
         termAccumulator.accumulate(text, category);
     }
 

@@ -30,8 +30,8 @@ public class Feed {
 
     }
 
-    public Feed(Long id){
-        this.id = id;
+    public Feed(String url){
+        this.url = url;
     }
 
     public Long getId() {

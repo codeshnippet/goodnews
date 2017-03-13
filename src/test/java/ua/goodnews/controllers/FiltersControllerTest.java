@@ -41,11 +41,25 @@ public class FiltersControllerTest extends TestCase {
 
     @Test
     public void testGetAllFilters() throws Exception {
-        List<Filter> list = Arrays.asList(new Filter("test-filter"));
-        given(this.filterRepository.findAll()).willReturn(list);
+        Feed feed = new Feed();
+        feed.setId(3l);
+        feed.setUrl("http://feed.com");
+
+        Filter filter = new Filter("test-filter");
+        filter.setId(1l);
+        filter.setFeeds(Arrays.asList(feed));
+        filter.setCategories(Arrays.asList(new Category("good"), new Category("bad")));
+
+        given(this.filterRepository.findAll()).willReturn(Arrays.asList(filter));
 
         this.mvc.perform(get("/filters").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(content().json("[{\"name\":\"test-filter\"}]"));
+                .andExpect(status().isOk()).andExpect(content().json(
+                "[{\"id\":1," +
+                        "\"name\":\"test-filter\"," +
+                        "\"feeds\":[{\"id\":3,\"url\":\"http://feed.com\"}]," +
+                        "\"categories\":[{\"name\":\"good\"},{\"name\":\"bad\"}]," +
+                        "}]"
+        ));
     }
 
     @Test

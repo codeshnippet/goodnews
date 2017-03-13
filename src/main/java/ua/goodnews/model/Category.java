@@ -10,6 +10,9 @@ import javax.persistence.*;
 
 @Entity
 public class Category implements Comparable<Category>{
+
+    public static final Category UNKNOWN = new Category("UNKNOWN");
+
     @Id
     @GeneratedValue
     private Long id;

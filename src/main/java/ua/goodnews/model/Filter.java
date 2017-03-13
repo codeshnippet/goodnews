@@ -16,10 +16,10 @@ public class Filter {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filter")
+    @OneToMany(mappedBy = "filter")
     private List<Category> categories;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filter")
+    @OneToMany(mappedBy = "filter")
     private List<Feed> feeds;
 
     public Filter(){}

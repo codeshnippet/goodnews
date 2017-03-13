@@ -36,9 +36,13 @@ public class BayesClassifierImpl implements BayesClassifier {
         long vocabularySize  = termRepository.count();
 
         double maxProbability = 0.0;
-        Category maxCategory = null;
+        Category maxCategory = Category.UNKNOWN;
         for(Category category: categories){
             double categoryProb = getCategoryRatio(category);
+            if(Double.isNaN(categoryProb)){
+                continue;
+            }
+
             double probability = calculateProbability(text, category, categoryProb, vocabularySize);
             if(maxProbability <= probability){
                 maxProbability = probability;
