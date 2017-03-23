@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class TermRepositoryImpl implements TermRepositoryCustom {
 
-    private static final int MINIMAL_TERM_OCCURRENCE_THRESHOLD = 4;
+    private static final int MINIMAL_TERM_OCCURRENCE_THRESHOLD = 1;
 
     @Autowired
     private EntityManager em;
