@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Feed;
 import ua.goodnews.model.Filter;
+import ua.goodnews.repositories.CategoryRepository;
+import ua.goodnews.repositories.FeedRepository;
 import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.utils.JsonTestUtil;
 
@@ -38,6 +40,12 @@ public class FiltersControllerTest extends TestCase {
 
     @MockBean
     private FilterRepository filterRepository;
+
+    @MockBean
+    private CategoryRepository categoryRepository;
+
+    @MockBean
+    private FeedRepository feedRepository;
 
     @Test
     public void testGetAllFilters() throws Exception {

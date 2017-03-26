@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Feed;
+import ua.goodnews.model.Text;
 import ua.goodnews.repositories.CategoryRepository;
 import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.services.bayes.BayesClassifier;
 import ua.goodnews.services.rss.FeedReader;
 import ua.goodnews.services.terms.TermAccumulator;
+import ua.goodnews.services.text.TextDataSetDecider;
+import ua.goodnews.services.text.TextService;
 
 import java.util.List;
 import java.util.stream.Collector;
@@ -19,9 +22,6 @@ import java.util.stream.Collectors;
 
 @Controller
 public class FeedsController {
-
-    @Autowired
-    private TermAccumulator termAccumulator;
 
     @Autowired
     private BayesClassifier bayesClassifier;
@@ -35,32 +35,39 @@ public class FeedsController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private TextService textService;
+
     @RequestMapping(value="/filters/{filterId}/feeds/{feedId}", method = RequestMethod.GET)
     public @ResponseBody
     Feed getFeed(@PathVariable(value="filterId", required = true) Long filterId,
                  @PathVariable(value="feedId", required = true) Long feedId){
 
-        Feed resultFeed = filterRepository.
+        Feed feed = filterRepository.
                 findOne(filterId).
                 getFeeds().
                 stream().
-                filter(feed -> feedId == feed.getId()).
+                filter(f -> feedId == f.getId()).
                 collect(singletonCollector());
 
-        List<FeedEntry> feedEntries = feedReader.read(resultFeed.getUrl());
+        List<FeedEntry> feedEntries = feedReader.read(feed.getUrl());
 
-        feedEntries.stream().forEach(entry -> bayesClassifier.classify(entry, resultFeed.getFilter().getCategories()));
+        feedEntries.stream().forEach(entry -> {
+            Category result = bayesClassifier.classify(entry.description, feed.getFilter().getCategories());
+            entry.category = result;
+        });
 
-        resultFeed.setEntries(feedEntries);
+        feed.setEntries(feedEntries);
 
-        return resultFeed;
+        return feed;
     }
 
     @RequestMapping(value = "/category/{categoryId}/mark", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public void teach(@RequestBody String text, @PathVariable(value="categoryId", required = true)Long categoryId){
+    public void teach(@RequestBody String content, @PathVariable(value="categoryId", required = true)Long categoryId){
         Category category = categoryRepository.findOne(categoryId);
-        termAccumulator.accumulate(text, category);
+
+        textService.saveText(content, category);
     }
 
     public static <T> Collector<T, ?, T> singletonCollector() {

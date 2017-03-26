@@ -27,13 +27,11 @@ public class TermAccumulatorImpl implements TermAccumulator {
     private TermRepository termRepository;
 
     @Override
-    public void accumulate(String content, Category category) {
-        content = textPipelineManager.process(content);
+    public void accumulate(Text text) {
+        String content = textPipelineManager.process(text.getContent());
 
-        Text text = new Text(content, category);
-        textRepository.save(text);
         for(String word: content.split(" ")) {
-            Term existingTerm = termRepository.findTermByWordAndTextCategory(word, category);
+            Term existingTerm = termRepository.findTermByWordAndTextCategory(word, text.getCategory());
             if (existingTerm != null){
                 existingTerm.incrementCount();
                 termRepository.save(existingTerm);

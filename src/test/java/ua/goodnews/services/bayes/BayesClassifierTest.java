@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import ua.goodnews.analyzers.EfficiencyAnalyzer;
 import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Filter;
@@ -13,6 +14,7 @@ import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.repositories.TermRepository;
 import ua.goodnews.repositories.TextRepository;
 import ua.goodnews.services.terms.TermAccumulator;
+import ua.goodnews.services.text.TextService;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,10 +38,7 @@ public class BayesClassifierTest {
     private static Logger logger = Logger.getLogger(BayesClassifierTest.class.getName());
 
     @Autowired
-    private BayesClassifier bayesClassifier;
-
-    @Autowired
-    private TermAccumulator termAccumulator;
+    private TextService textService;
 
     @Autowired
     private FilterRepository filterRepository;
@@ -53,16 +52,12 @@ public class BayesClassifierTest {
     @Autowired
     private TextRepository textRepository;
 
+    @Autowired
+    private EfficiencyAnalyzer efficiencyAnalyzer;
+
     private Filter petFilter;
     private Category dogCategory;
     private Category catCategory;
-    private String[] goodTestTexts;
-    private String[] badTestTexts;
-
-    public BayesClassifierTest() throws IOException {
-        goodTestTexts = readTextsFromFolder("src/test/resources/good-test", 1000);
-        badTestTexts = readTextsFromFolder("src/test/resources/bad-test", 1000);
-    }
 
     @Test
     public void testClassificationResultsAreGrowing() throws IOException {
@@ -72,7 +67,7 @@ public class BayesClassifierTest {
         for (int i = 0; i < dataSetSize; i ++) {
             initDbObjects();
             teachSystem(i + 1);
-            results[i] =  getClassificationSuccessRate();
+            results[i] =  efficiencyAnalyzer.calculateFilterEfficiency(petFilter);
             clearDB();
 
             logger.info("Classification accuracy for dataset of size " + i + " is " + results[i]);
@@ -91,43 +86,17 @@ public class BayesClassifierTest {
         filterRepository.deleteAll();
     }
 
-    private double getClassificationSuccessRate() throws IOException {
-        double goodCount = 0;
-        //Test on good test texts
-
-        for (String text: goodTestTexts){
-            FeedEntry entry = new FeedEntry();
-            entry.description = text;
-            bayesClassifier.classify(entry, petFilter.getCategories());
-            if("dog".equals(entry.category.getName())) {
-                goodCount += 1;
-            }
-        }
-
-        //Test on bad test texts
-        for (String text: badTestTexts){
-            FeedEntry entry = new FeedEntry();
-            entry.description = text;
-            bayesClassifier.classify(entry, petFilter.getCategories());
-            if("cat".equals(entry.category.getName())) {
-                goodCount += 1;
-            }
-        }
-
-        return goodCount / 6.0;
-    }
-
     private void teachSystem(int maxFiles) throws IOException {
         //Teach good words
         String[] goodTexts = readTextsFromFolder("src/test/resources/good", maxFiles);
         for (String text: goodTexts){
-            termAccumulator.accumulate(text, dogCategory);
+            textService.saveText(text, dogCategory);
         }
 
         //Teach bad words
         String[] badTexts = readTextsFromFolder("src/test/resources/bad", maxFiles);
         for (String text: badTexts){
-            termAccumulator.accumulate(text, catCategory);
+            textService.saveText(text, catCategory);
         }
     }
 

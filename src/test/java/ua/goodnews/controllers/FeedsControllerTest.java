@@ -1,35 +1,31 @@
 package ua.goodnews.controllers;
 
-import com.sun.syndication.feed.synd.SyndEntry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.goodnews.converters.SyndEntryToNeewsEntryConverter;
 import ua.goodnews.dto.FeedEntry;
 import ua.goodnews.model.Category;
 import ua.goodnews.model.Feed;
 import ua.goodnews.model.Filter;
+import ua.goodnews.repositories.CategoryRepository;
 import ua.goodnews.repositories.FeedRepository;
 import ua.goodnews.repositories.FilterRepository;
 import ua.goodnews.services.bayes.BayesClassifier;
 import ua.goodnews.services.rss.FeedReader;
 import ua.goodnews.services.terms.TermAccumulator;
+import ua.goodnews.services.text.TextService;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,12 +38,6 @@ public class FeedsControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private FeedRepository feedRepository;
-
-    @MockBean
-    private TermAccumulator termAccumulator;
-
-    @MockBean
     private BayesClassifier bayesClassifier;
 
     @MockBean
@@ -55,6 +45,12 @@ public class FeedsControllerTest {
 
     @MockBean
     private FilterRepository filterRepository;
+
+    @MockBean
+    private CategoryRepository categoryRepository;
+
+    @MockBean
+    private TextService textService;
 
     @Test
     public void testGetFeed() throws Exception {
@@ -85,17 +81,9 @@ public class FeedsControllerTest {
         given(this.filterRepository.findOne(31l)).willReturn(goodBad);
         given(this.feedReader.read("http://feed.com")).willReturn(Arrays.asList(feedEntryOne, feedEntryTwo));
 
-        doAnswer(invocation -> {
-            FeedEntry entry = (FeedEntry)invocation.getArguments()[0];
-            entry.category = good;
-            return null;
-        }).when(bayesClassifier).classify(eq(feedEntryOne), eq(categories));
+        when(bayesClassifier.classify(eq("NEWS-TEXT"), eq(categories))).thenReturn(good);
 
-        doAnswer(invocation -> {
-            FeedEntry entry = (FeedEntry)invocation.getArguments()[0];
-            entry.category = bad;
-            return null;
-        }).when(bayesClassifier).classify(eq(feedEntryTwo), eq(categories));
+        when(bayesClassifier.classify(eq("OTHER-TEXT"), eq(categories))).thenReturn(bad);
 
         // When
         this.mvc.perform(get("/filters/31/feeds/12").accept(MediaType.APPLICATION_JSON))

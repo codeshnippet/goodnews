@@ -10,5 +10,5 @@ import java.util.Set;
  * Created by acidum on 2/9/17.
  */
 public interface BayesClassifier {
-    void classify(FeedEntry entry, Collection<Category> categories);
+    Category classify(String content, Collection<Category> categories);
 }
