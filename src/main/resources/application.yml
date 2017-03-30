@@ -1,0 +1,31 @@
+spring:
+  profiles.active: default
+---
+spring:
+  profiles: default
+
+  datasource:
+    url: jdbc:h2:mem:goodnews;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  jackson:
+    serialization-inclusion: NON_NULL
+
+---
+spring:
+  profiles: prod
+
+  datasource:
+    url: jdbc:mysql://b376ace4a92b7e:f9b60c3e@eu-cdbr-west-01.cleardb.com/heroku_c7a741c5aef6ff0?reconnect=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
