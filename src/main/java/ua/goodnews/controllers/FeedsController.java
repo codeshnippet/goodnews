@@ -39,7 +39,9 @@ public class FeedsController {
     private TextService textService;
 
     @RequestMapping(value="/filters/{filterId}/feeds/{feedId}", method = RequestMethod.GET)
-    public @ResponseBody Feed getFeed(@PathVariable Long filterId, @PathVariable Long feedId){
+    public @ResponseBody
+    Feed getFeed(@PathVariable(value="filterId", required = true) Long filterId,
+                 @PathVariable(value="feedId", required = true) Long feedId){
 
         Feed feed = filterRepository.
                 findOne(filterId).
@@ -62,7 +64,7 @@ public class FeedsController {
 
     @RequestMapping(value = "/category/{categoryId}/mark", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
-    public void teach(@RequestBody String content, @PathVariable Long categoryId){
+    public void teach(@RequestBody String content, @PathVariable(value="categoryId", required = true)Long categoryId){
         Category category = categoryRepository.findOne(categoryId);
 
         textService.saveText(content, category);
