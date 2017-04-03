@@ -2,6 +2,7 @@ package ua.goodnews.processors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.goodnews.processors.impl.HtmlSanitizer;
 import ua.goodnews.processors.impl.RegexpFilter;
 import ua.goodnews.processors.impl.PopularTermsFilter;
 import ua.goodnews.processors.impl.ToLowerCaseConverter;
@@ -22,7 +23,11 @@ public class TextPipelineManager {
     @Autowired
     private PopularTermsFilter popularTermsFilter;
 
+    @Autowired
+    private HtmlSanitizer htmlSanitizer;
+
     public String process(String text){
+        text = htmlSanitizer.process(text);
         text = regexpFilter.process(text);
         text = toLowerCaseConverter.process(text);
         text = popularTermsFilter.process(text);
